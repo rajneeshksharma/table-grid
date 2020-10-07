@@ -1,0 +1,2 @@
+_id,isDelete,firstName,lastName,class,subjects,createdAt,updatedAt
+5f7ce604afd7d53584139387,false,user,one,10th,"[{""_id"":{""$oid"":""5f7ce604afd7d53584139388""},""name"":""Maths"",""marks"":50},{""_id"":{""$oid"":""5f7ce604afd7d53584139389""},""name"":""English"",""marks"":49}]",2020-10-06T21:47:48.200Z,2020-10-06T21:47:48.200Z

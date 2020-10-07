@@ -1,0 +1,262 @@
+<div class="p-d-flex p-jc-between header">
+  <div class="p-mr-2">
+    <span class="p-input-icon-left search-Input">
+      <i class="pi pi-search"></i>
+      <input
+        [(ngModel)]="userSearch"
+        name="userSearch"
+        id="userSearch"
+        (ngModelChange)="userSearchUpdate.next($event)"
+        placeholder="Search by name or class ..."
+        type="text"
+        class="p-inputtext-lg"
+        pInputText
+      />
+    </span>
+  </div>
+  <div>
+    <button
+      pButton
+      type="button"
+      label="Add Student"
+      icon="pi pi-plus"
+      class="p-button-lg"
+      (click)="add()"
+    ></button>
+  </div>
+</div>
+<div class="p-d-flex">
+  <p-table [value]="students" styleClass="p-datatable-responsive-demo">
+    <ng-template pTemplate="header">
+      <tr>
+        <!-- <th>ID</th> -->
+        <th>FirstName</th>
+        <th>LastName</th>
+        <th>Class</th>
+        <th>Subject</th>
+        <th>Marks</th>
+        <th>Action</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-student>
+      <tr>
+        <!-- <td>{{ student._id }}</td> -->
+        <td class="name">{{ student.firstName }}</td>
+        <td class="name">{{ student.lastName }}</td>
+        <td class="name">{{ student.class }}</td>
+        <td>
+          <ul class="name subjects" *ngFor="let subject of student.subjects">
+            <li>{{ subject.name }}</li>
+          </ul>
+        </td>
+        <td>
+          <ul class="name subjects" *ngFor="let subject of student.subjects">
+            <li>{{ subject.marks }}</li>
+          </ul>
+        </td>
+        <td>
+          <i (click)="editStudent(student)" class="icon pi pi-user-edit"></i>
+          | <i (click)="deleteStudent(student)" class="icon pi pi-trash"></i>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<p-paginator
+  [rows]="10"
+  (onPageChange)="paginateData($event)"
+  [totalRecords]="total"
+  [rowsPerPageOptions]="[10, 20, 50]"
+></p-paginator>
+<p-dialog
+  styleClass="mydialog"
+  header="Delete User"
+  [(visible)]="deleteDialog"
+  [style]="{ width: '40vw' }"
+  [baseZIndex]="10000"
+>
+  <p>Are you sure that you want to proceed?</p>
+  <ng-template pTemplate="footer">
+    <p-button
+      icon="pi pi-check"
+      (click)="deleteStudentAccept()"
+      label="Yes"
+      styleClass="p-button-text"
+    ></p-button>
+    <p-button
+      icon="pi pi-times"
+      (click)="deleteDialog = false"
+      label="No"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<p-dialog
+  styleClass="mydialog"
+  header="Add/Edit Student"
+  [(visible)]="AddEditDialog"
+  [style]="{ width: '40vw' }"
+  [baseZIndex]="10000"
+>
+  <form [formGroup]="addEditForm" novalidate role="form">
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-12 p-md-6">
+        <label for="firstname">Firstname</label>
+        <input
+          formControlName="firstName"
+          id="firstName"
+          type="text"
+          pInputText
+        />
+
+        <div
+          *ngIf="
+            addEditForm.controls['firstName'].errors &&
+            (addEditForm.controls['firstName'].dirty ||
+              addEditForm.controls['firstName'].touched ||
+              FormSubmitted)
+          "
+        >
+          <span
+            class="errors"
+            *ngIf="addEditForm.controls['firstName'].errors.required"
+          >
+            *First name is required.
+          </span>
+        </div>
+      </div>
+      <div class="p-field p-col-12 p-md-6">
+        <label for="lastname">Lastname</label>
+        <input formControlName="lastName" type="text" pInputText />
+        <div
+          *ngIf="
+            addEditForm.controls['lastName'].errors &&
+            (addEditForm.controls['lastName'].dirty ||
+              addEditForm.controls['lastName'].touched ||
+              FormSubmitted)
+          "
+        >
+          <span
+            class="errors"
+            *ngIf="addEditForm.controls['lastName'].errors.required"
+          >
+            *Last name is required.
+          </span>
+        </div>
+      </div>
+      <div class="p-field p-col-12 p-md-12">
+        <label for="city">Class</label>
+        <input formControlName="class" type="text" pInputText />
+        <div
+          *ngIf="
+            addEditForm.controls['class'].errors &&
+            (addEditForm.controls['class'].dirty ||
+              addEditForm.controls['class'].touched ||
+              FormSubmitted)
+          "
+        >
+          <span
+            class="errors"
+            *ngIf="addEditForm.controls['class'].errors.required"
+          >
+            *Class is required.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col-12 p-md-5">
+        <label for="zip">Subject</label>
+      </div>
+      <div class="p-field p-col-12 p-md-5">
+        <label for="zip">Marks</label>
+      </div>
+      <div class="p-field p-col-12 p-md-2">
+        <label for="zip">Action</label>
+      </div>
+    </div>
+    <div formArrayName="subjects">
+      <div
+        *ngFor="let subject of subjects().controls; let i = index"
+        [formGroupName]="i"
+        class="p-fluid p-formgrid p-grid"
+      >
+        <div class="p-field p-col-12 p-md-5">
+          <input
+            formControlName="name"
+            placeholder="Subject name"
+            type="text"
+            pInputText
+          />
+          <div
+            *ngIf="
+              subjects().controls[i]['controls']['name'].errors &&
+              (subjects().controls[i]['controls']['name'].dirty ||
+                subjects().controls[i]['controls']['name'].touched ||
+                FormSubmitted)
+            "
+          >
+            <span
+              class="errors"
+              *ngIf="subjects().controls[i]['controls']['name'].errors.required"
+            >
+              *Subject name is required.
+            </span>
+          </div>
+        </div>
+        <div class="p-field p-col-12 p-md-5">
+          <input
+            placeholder="Marks"
+            formControlName="marks"
+            type="number"
+            pInputText
+          />
+          <div
+            *ngIf="
+              subjects().controls[i]['controls']['marks'].errors &&
+              (subjects().controls[i]['controls']['marks'].dirty ||
+                subjects().controls[i]['controls']['marks'].touched ||
+                FormSubmitted)
+            "
+          >
+            <span
+              class="errors"
+              *ngIf="
+                subjects().controls[i]['controls']['marks'].errors.required
+              "
+            >
+              *Subject marks is required.
+            </span>
+          </div>
+        </div>
+        <div style="padding: 5px 5px" class="p-field p-col-12 p-md-2">
+          <i (click)="addSubjects()" class="icon pi pi-plus"></i>
+          {{ " " }}
+          <i
+            *ngIf="i !== 0"
+            (click)="removeSubject(i)"
+            class="icon pi pi-trash"
+          ></i>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  <br />
+  {{ subjects | json }}
+  <ng-template pTemplate="footer">
+    <p-button
+      [disabled]="FormSubmitted"
+      icon="pi pi-check"
+      (click)="onSubmit()"
+      label="Yes"
+      styleClass="p-button-text"
+    ></p-button>
+    <p-button
+      icon="pi pi-times"
+      (click)="AddEditDialog = false"
+      label="No"
+    ></p-button>
+  </ng-template>
+</p-dialog>
